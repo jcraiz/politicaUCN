@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UCN — Bilingüismo | Bilingualism</title>
+  <style>
+    :root {
+      --ucn-blue: #68B5E3;
+      --ucn-blue-dark: #2e8bc0;
+      --ucn-purple: #3C335D;
+      --text-light: #f5f7fb;
+      --text-muted: #d8deec;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text-light);
+      background: linear-gradient(135deg, #1b1836 0%, #0e1a33 100%);
+      overflow-x: hidden;
+    }
+
+    /* ---------- Background video ---------- */
+    .bg-video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      background: #0e1a33;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(180deg, rgba(28, 23, 54, 0.72) 0%, rgba(14, 22, 46, 0.82) 55%, rgba(14, 22, 46, 0.9) 100%);
+    }
+
+    /* ---------- Layout ---------- */
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(16px, 4vw, 40px);
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo-panel {
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 14px;
+      padding: 10px 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      max-width: 280px;
+    }
+
+    .logo-panel img { display: block; width: 100%; height: auto; }
+
+    /* ---------- Language toggle ---------- */
+    .lang-toggle {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      padding: 4px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .lang-toggle button {
+      border: none;
+      background: transparent;
+      color: #eef2fb;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .lang-toggle button.active { background: var(--ucn-blue); color: #10203a; }
+    .lang-toggle button:not(.active):hover { background: rgba(255, 255, 255, 0.18); }
+
+    /* ---------- Main ---------- */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2.4vw, 1.3rem);
+      color: var(--text-muted);
+      max-width: 720px;
+      margin-bottom: 40px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ---------- Cards ---------- */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      width: 100%;
+      max-width: 940px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 18px;
+      padding: 28px 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+
+    .card:hover { transform: translateY(-6px); background: rgba(255, 255, 255, 0.16); }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #10203a;
+      background: var(--ucn-blue);
+      border-radius: 999px;
+      padding: 5px 12px;
+      margin-bottom: 14px;
+    }
+
+    .card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      line-height: 1.55;
+      margin-bottom: 22px;
+      flex: 1;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--ucn-blue) 0%, var(--ucn-blue-dark) 100%);
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 6px 18px rgba(46, 139, 192, 0.4);
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(46, 139, 192, 0.55); }
+    .btn .icon { font-size: 1.1rem; line-height: 1; }
+
+    /* ---------- Footer ---------- */
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding-top: 8px;
+    }
+
+    footer .sep { opacity: 0.6; }
+
+    /* =========================================================
+       FLIPBOOK MODAL
+       ========================================================= */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .modal[hidden] { display: none; }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 10, 22, 0.85);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1180px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .fb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .fb-title {
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+    }
+
+    .fb-close {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .fb-close:hover { background: rgba(255, 255, 255, 0.28); }
+
+    .fb-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .fb-nav {
+      flex: 0 0 auto;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 1.9rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .fb-nav:hover:not(:disabled) { background: rgba(104, 181, 227, 0.4); transform: translateY(-2px); }
+    .fb-nav:disabled { opacity: 0.25; cursor: default; }
+
+    .fb-book {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      aspect-ratio: var(--book-ratio, 1.546);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      perspective: 2400px;
+    }
+
+    .fb-page {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background: #fff;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .fb-page img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .fb-left { left: 0; border-radius: 6px 0 0 6px; }
+    .fb-right { right: 0; border-radius: 0 6px 6px 0; }
+
+    .fb-spine {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      transform: translateX(-50%);
+      z-index: 2;
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.35), rgba(0,0,0,0.05) 35%,
+        rgba(255,255,255,0) 50%,
+        rgba(0,0,0,0.08), rgba(0,0,0,0.35));
+    }
+
+    .fb-flipper {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      z-index: 3;
+      transform-style: preserve-3d;
+      transition: transform 0.9s cubic-bezier(0.2, 0.6, 0.2, 1);
+    }
+    .fb-flipper.right { left: 50%; transform-origin: left center; }
+    .fb-flipper.left  { left: 0;   transform-origin: right center; }
+
+    .fb-face {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .fb-face.back { transform: rotateY(180deg); }
+    .fb-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .fb-face::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.07), rgba(255,255,255,0) 12%,
+        rgba(255,255,255,0) 88%, rgba(0,0,0,0.09));
+    }
+
+    .fb-flipper.right .front { border-radius: 0 6px 6px 0; }
+    .fb-flipper.right .back  { border-radius: 6px 0 0 6px; }
+    .fb-flipper.left  .front { border-radius: 6px 0 0 6px; }
+    .fb-flipper.left  .back  { border-radius: 0 6px 6px 0; }
+
+    .fb-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .fb-info { color: var(--text-muted); font-size: 0.95rem; }
+
+    .fb-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 9px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: background 0.2s ease;
+    }
+    .fb-download:hover { background: rgba(255, 255, 255, 0.26); }
+
+    @media (max-width: 640px) {
+      .fb-nav { width: 40px; height: 40px; font-size: 1.5rem; }
+      .fb-stage { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <video class="bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1">
+    <source src="assets/background.mp4" type="video/mp4" />
+  </video>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="logo-panel">
+        <img src="assets/logo.svg" alt="Fundación Universitaria Católica del Norte — UCN" />
+      </div>
+
+      <div class="lang-toggle" role="group" data-i18n-aria="lang.label">
+        <button id="lang-es" type="button" class="active" aria-pressed="true" data-i18n-aria="lang.es">ES</button>
+        <button id="lang-en" type="button" aria-pressed="false" data-i18n-aria="lang.en">EN</button>
+      </div>
+    </header>
+
+    <main>
+      <h1 data-i18n="title">Bilingüismo UCN</h1>
+      <p class="subtitle" data-i18n="subtitle">Políticas institucionales de lengua extranjera para estudiantes del centro de idiomas</p>
+
+      <div class="cards">
+        <article class="card">
+          <span class="badge" data-i18n="doc1.badge">Acuerdo 05 de 2025</span>
+          <h2 data-i18n="doc1.title">Política de Lengua Extranjera</h2>
+          <p data-i18n="doc1.desc">Por el cual se modifica el Acuerdo N.º 12 de 2024 y se reglamenta la Lengua Extranjera para los programas académicos.</p>
+          <button class="btn" type="button" data-open-doc="doc1">
+            <span class="icon" aria-hidden="true">📖</span>
+            <span data-i18n="doc1.cta">Abrir flipbook</span>
+          </button>
+        </article>
+
+        <article class="card">
+          <span class="badge" data-i18n="doc2.badge">Acuerdo 15 de 2025</span>
+          <h2 data-i18n="doc2.title">Calendario Académico UCN 2026</h2>
+          <p data-i18n="doc2.desc">Por el cual se establece el calendario académico 2026: pregrado, posgrado y Centro de Idiomas.</p>
+          <button class="btn" type="button" data-open-doc="doc2">
+            <span class="icon" aria-hidden="true">📖</span>
+            <span data-i18n="doc2.cta">Abrir flipbook</span>
+          </button>
+        </article>
+      </div>
+    </main>
+
+    <footer>
+      <span data-i18n="footer">Fundación Universitaria Católica del Norte</span>
+      <span class="sep"> · </span>
+      <span data-i18n="footer.rights">Todos los derechos reservados</span>
+    </footer>
+  </div>
+
+  <!-- Flipbook modal -->
+  <div class="modal" id="flipModal" hidden>
+    <div class="modal-backdrop" id="flipBackdrop"></div>
+    <div class="modal-content">
+      <div class="fb-header">
+        <div class="fb-title" id="fbTitle"></div>
+        <button class="fb-close" id="fbClose" type="button" data-i18n-aria="viewer.close">&times;</button>
+      </div>
+      <div class="fb-stage">
+        <button class="fb-nav" id="fbPrev" type="button" data-i18n-aria="viewer.prev">&#8249;</button>
+        <div class="fb-book" id="fbBook"></div>
+        <button class="fb-nav" id="fbNext" type="button" data-i18n-aria="viewer.next">&#8250;</button>
+      </div>
+      <div class="fb-footer">
+        <span class="fb-info" id="fbInfo"></span>
+        <a class="fb-download" id="fbDownload" href="#" target="_blank" rel="noopener">
+          <span aria-hidden="true">↗</span>
+          <span data-i18n="viewer.download">Abrir PDF original</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/pages/manifest.js"></script>
+  <script>
+    (function () {
+      var translations = {
+        es: {
+          "title": "Bilingüismo UCN",
+          "subtitle": "Políticas institucionales de lengua extranjera para estudiantes del centro de idiomas",
+          "doc1.badge": "Acuerdo 05 de 2025",
+          "doc1.title": "Política de Lengua Extranjera",
+          "doc1.desc": "Por el cual se modifica el Acuerdo N.º 12 de 2024 y se reglamenta la Lengua Extranjera para los programas académicos.",
+          "doc1.cta": "Abrir flipbook",
+          "doc2.badge": "Acuerdo 15 de 2025",
+          "doc2.title": "Calendario Académico UCN 2026",
+          "doc2.desc": "Por el cual se establece el calendario académico 2026: pregrado, posgrado y Centro de Idiomas.",
+          "doc2.cta": "Abrir flipbook",
+          "footer": "Fundación Universitaria Católica del Norte",
+          "footer.rights": "Todos los derechos reservados",
+          "lang.label": "Cambiar idioma",
+          "lang.es": "Español",
+          "lang.en": "English",
+          "viewer.close": "Cerrar",
+          "viewer.prev": "Página anterior",
+          "viewer.next": "Página siguiente",
+          "viewer.download": "Abrir PDF original",
+          "viewer.pages": "Páginas {a}–{b} de {n}",
+          "viewer.page": "Página {a} de {n}"
+        },
+        en: {
+          "title": "UCN Bilingualism",
+          "subtitle": "Institutional foreign-language policies for students of the Language Center",
+          "doc1.badge": "Agreement 05 of 2025",
+          "doc1.title": "Foreign Language Policy",
+          "doc1.desc": "Which amends Agreement No. 12 of 2024 and regulates the Foreign Language for academic programs.",
+          "doc1.cta": "Open flipbook",
+          "doc2.badge": "Agreement 15 of 2025",
+          "doc2.title": "UCN Academic Calendar 2026",
+          "doc2.desc": "Which establishes the 2026 academic calendar: undergraduate, graduate, and the Language Center.",
+          "doc2.cta": "Open flipbook",
+          "footer": "Fundación Universitaria Católica del Norte",
+          "footer.rights": "All rights reserved",
+          "lang.label": "Switch language",
+          "lang.es": "Español",
+          "lang.en": "English",
+          "viewer.close": "Close",
+          "viewer.prev": "Previous page",
+          "viewer.next": "Next page",
+          "viewer.download": "Open original PDF",
+          "viewer.pages": "Pages {a}–{b} of {n}",
+          "viewer.page": "Page {a} of {n}"
+        }
+      };
+
+      var LANG_KEY = "ucn-bilinguismo-lang";
+      var currentLang = "es";
+
+      var btnEs = document.getElementById("lang-es");
+      var btnEn = document.getElementById("lang-en");
+
+      /* ---------- Flipbook references ---------- */
+      var flipModal = document.getElementById("flipModal");
+      var flipBackdrop = document.getElementById("flipBackdrop");
+      var fbClose = document.getElementById("fbClose");
+      var fbPrev = document.getElementById("fbPrev");
+      var fbNext = document.getElementById("fbNext");
+      var fbBook = document.getElementById("fbBook");
+      var fbTitle = document.getElementById("fbTitle");
+      var fbInfo = document.getElementById("fbInfo");
+      var fbDownload = document.getElementById("fbDownload");
+
+      var currentBook = null;   // book object from manifest
+      var pages = [];           // page image URLs (padded to even)
+      var k = 0;                // current spread index (left page = 2k, right = 2k+1)
+      var flipping = false;
+
+      var leftPage, rightPage, flipper, leftImg, rightImg, frontImg, backImg;
+
+      function resolve(key) {
+        return translations[currentLang][key] || key;
+      }
+
+      /* ---------- i18n ---------- */
+      function applyLanguage(lang) {
+        currentLang = lang;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(function (el) {
+          el.textContent = resolve(el.getAttribute("data-i18n"));
+        });
+        document.querySelectorAll("[data-i18n-aria]").forEach(function (el) {
+          el.setAttribute("aria-label", resolve(el.getAttribute("data-i18n-aria")));
+        });
+
+        btnEs.classList.toggle("active", lang === "es");
+        btnEn.classList.toggle("active", lang === "en");
+        btnEs.setAttribute("aria-pressed", String(lang === "es"));
+        btnEn.setAttribute("aria-pressed", String(lang === "en"));
+
+        document.title = (lang === "es") ? "UCN — Bilingüismo" : "UCN — Bilingualism";
+
+        refreshDynamic();
+      }
+
+      /* ---------- Flipbook DOM ---------- */
+      function buildFlipbookDom() {
+        leftPage = document.createElement("div");
+        leftPage.className = "fb-page fb-left";
+        leftImg = document.createElement("img");
+        leftImg.alt = "";
+        leftPage.appendChild(leftImg);
+
+        rightPage = document.createElement("div");
+        rightPage.className = "fb-page fb-right";
+        rightImg = document.createElement("img");
+        rightImg.alt = "";
+        rightPage.appendChild(rightImg);
+
+        var spine = document.createElement("div");
+        spine.className = "fb-spine";
+
+        flipper = document.createElement("div");
+        flipper.className = "fb-flipper";
+        var frontFace = document.createElement("div");
+        frontFace.className = "fb-face front";
+        var backFace = document.createElement("div");
+        backFace.className = "fb-face back";
+        frontImg = document.createElement("img");
+        backImg = document.createElement("img");
+        frontImg.alt = "";
+        backImg.alt = "";
+        frontFace.appendChild(frontImg);
+        backFace.appendChild(backImg);
+        flipper.appendChild(frontFace);
+        flipper.appendChild(backFace);
+
+        fbBook.appendChild(leftPage);
+        fbBook.appendChild(rightPage);
+        fbBook.appendChild(spine);
+        fbBook.appendChild(flipper);
+
+        flipper.addEventListener("transitionend", function (e) {
+          if (e.propertyName !== "transform" || !flipping) return;
+          flipping = false;
+          settle();
+        });
+      }
+
+      function setFace(imgEl, url) {
+        if (url) {
+          imgEl.src = url;
+          imgEl.style.display = "block";
+        } else {
+          imgEl.removeAttribute("src");
+          imgEl.style.display = "none";
+        }
+      }
+
+      function renderRest() {
+        setFace(leftImg, pages[2 * k]);
+        setFace(rightImg, pages[2 * k + 1]);
+        flipper.style.transition = "none";
+        flipper.classList.remove("left", "right");
+        flipper.style.transform = "rotateY(0deg)";
+        flipper.style.display = "none";
+      }
+
+      function next() {
+        if (flipping || !currentBook) return;
+        var nl = 2 * (k + 1);              // next left page index
+        if (nl >= pages.length) return;
+
+        flipping = true;
+        flipper.classList.remove("left");
+        flipper.classList.add("right");
+        flipper.style.transition = "none";
+        flipper.style.transform = "rotateY(0deg)";
+        setFace(frontImg, pages[2 * k + 1]); // current right page
+        setFace(backImg, pages[nl]);          // next left page
+        setFace(rightImg, pages[nl + 1]);     // next right page (revealed under)
+        flipper.style.display = "block";
+
+        void flipper.offsetWidth;             // reflow to commit the reset
+        flipper.style.transition = "";
+        flipper.style.transform = "rotateY(-180deg)";
+        updateNav();
+      }
+
+      function prev() {
+        if (flipping || !currentBook) return;
+        if (k < 1) return;
+
+        flipping = true;
+        flipper.classList.remove("right");
+        flipper.classList.add("left");
+        flipper.style.transition = "none";
+        flipper.style.transform = "rotateY(0deg)";
+        setFace(frontImg, pages[2 * k]);       // current left page
+        setFace(backImg, pages[2 * k - 1]);    // previous right page
+        setFace(leftImg, pages[2 * (k - 1)]);  // previous left page (revealed under)
+        flipper.style.display = "block";
+
+        void flipper.offsetWidth;
+        flipper.style.transition = "";
+        flipper.style.transform = "rotateY(180deg)";
+        updateNav();
+      }
+
+      function settle() {
+        if (flipper.classList.contains("right")) { k += 1; }
+        else { k -= 1; }
+        renderRest();
+        updateNav();
+        refreshInfo();
+      }
+
+      function updateNav() {
+        fbPrev.disabled = (k < 1);
+        fbNext.disabled = (2 * (k + 1) >= pages.length);
+      }
+
+      function refreshInfo() {
+        if (!currentBook) return;
+        var n = currentBook.count;
+        var a = 2 * k + 1;
+        var b = 2 * k + 2;
+        var text;
+        if (b > n) {
+          text = resolve("viewer.page").replace("{a}", a).replace("{n}", n);
+        } else {
+          text = resolve("viewer.pages").replace("{a}", a).replace("{b}", b).replace("{n}", n);
+        }
+        fbInfo.textContent = text;
+      }
+
+      function refreshDynamic() {
+        if (!currentBook) return;
+        fbTitle.textContent = resolve(currentBook.id + ".title");
+        fbDownload.setAttribute("href", currentBook.pdf);
+        refreshInfo();
+        updateNav();
+      }
+
+      /* ---------- Open / close ---------- */
+      function openBook(docId) {
+        var books = window.BOOKS && window.BOOKS.books;
+        if (!books || !books[docId]) return;
+        currentBook = books[docId];
+        pages = currentBook.pages.slice();
+        if (pages.length % 2 === 1) { pages.push(""); } // pad to a full spread
+
+        k = 0;
+        var ratio = 2 / (currentBook.pageH / currentBook.pageW);
+        fbBook.style.setProperty("--book-ratio", ratio.toFixed(4));
+
+        fbDownload.setAttribute("href", currentBook.pdf);
+        renderRest();
+        refreshDynamic();
+
+        flipModal.hidden = false;
+        document.body.style.overflow = "hidden";
+        fbClose.focus();
+      }
+
+      function closeBook() {
+        flipModal.hidden = true;
+        document.body.style.overflow = "";
+        currentBook = null;
+      }
+
+      /* ---------- Events ---------- */
+      document.querySelectorAll("[data-open-doc]").forEach(function (btn) {
+        btn.addEventListener("click", function () { openBook(btn.getAttribute("data-open-doc")); });
+      });
+
+      fbClose.addEventListener("click", closeBook);
+      fbPrev.addEventListener("click", prev);
+      fbNext.addEventListener("click", next);
+      flipBackdrop.addEventListener("click", closeBook);
+
+      document.addEventListener("keydown", function (e) {
+        if (flipModal.hidden) return;
+        if (e.key === "Escape") { closeBook(); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); next(); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
+      });
+
+      btnEs.addEventListener("click", function () {
+        applyLanguage("es");
+        try { localStorage.setItem(LANG_KEY, "es"); } catch (err) {}
+      });
+      btnEn.addEventListener("click", function () {
+        applyLanguage("en");
+        try { localStorage.setItem(LANG_KEY, "en"); } catch (err) {}
+      });
+
+      /* ---------- Init ---------- */
+      buildFlipbookDom();
+
+      var saved = null;
+      try { saved = localStorage.getItem(LANG_KEY); } catch (err) {}
+      if (saved === "en" || saved === "es") { currentLang = saved; }
+
+      applyLanguage(currentLang);
+    })();
+  </script>
+</body>
+</html>
